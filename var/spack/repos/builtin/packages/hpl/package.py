@@ -8,7 +8,7 @@ import os
 import platform
 
 
-class Hpl(AutotoolsPackage):
+class Hpl(MakefilePackage):
     """HPL is a software package that solves a (random) dense linear system
     in double precision (64 bits) arithmetic on distributed-memory computers.
     It can thus be regarded as a portable as well as freely available
@@ -17,9 +17,6 @@ class Hpl(AutotoolsPackage):
     homepage = "http://www.netlib.org/benchmark/hpl/"
     url      = "http://www.netlib.org/benchmark/hpl/hpl-2.2.tar.gz"
 
-    # Note: HPL uses autotools starting with 2.3
-
-    version('2.3', sha256='32c5c17d22330e6f2337b681aded51637fb6008d3f0eb7c277b163fadd612830')
     version('2.2', '0eb19e787c3dc8f4058db22c9e0c5320')
 
     variant('openmp', default=False, description='Enable OpenMP support')
@@ -27,21 +24,13 @@ class Hpl(AutotoolsPackage):
     depends_on('mpi@1.1:')
     depends_on('blas')
 
-    # 2.3 adds support for openmpi 4
-    conflicts('openmpi@4.0.0:', when='@:2.2')
-
     parallel = False
 
     arch = '{0}-{1}'.format(platform.system(), platform.processor())
+
     build_targets = ['arch={0}'.format(arch)]
 
-    @when('@:2.2')
-    def autoreconf(self, spec, prefix):
-        # Prevent sanity check from killing the build
-        touch('configure')
-
-    @when('@:2.2')
-    def configure(self, spec, prefix):
+    def edit(self, spec, prefix):
         # List of configuration options
         # Order is important
         config = []
@@ -99,26 +88,9 @@ class Hpl(AutotoolsPackage):
             for var in config:
                 makefile.write('{0}\n'.format(var))
 
-    @when('@2.3:')
-    def configure_args(self):
-        config = [
-            'CFLAGS=-O3'
-        ]
-
-        return config
-
-    @when('@:2.2')
     def install(self, spec, prefix):
         # Manual installation
         install_tree(join_path('bin', self.arch), prefix.bin)
         install_tree(join_path('lib', self.arch), prefix.lib)
         install_tree(join_path('include', self.arch), prefix.include)
         install_tree('man', prefix.man)
-
-    @run_after('install')
-    def copy_dat(self):
-        if self.spec.satisfies('@2.3:'):
-            # The pre-2.3 makefile would include a default HPL.dat config
-            # file in the bin directory
-            install('./testing/ptest/HPL.dat',
-                    join_path(self.prefix.bin, 'HPL.dat'))

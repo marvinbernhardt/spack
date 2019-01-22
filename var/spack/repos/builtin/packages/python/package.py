@@ -694,9 +694,7 @@ class Python(AutotoolsPackage):
         exts = extensions_layout.extension_map(self.spec)
         exts[ext_pkg.name] = ext_pkg.spec
 
-        self.write_easy_install_pth(exts, prefix=view.get_projection_for_spec(
-            self.spec
-        ))
+        self.write_easy_install_pth(exts, prefix=view.root)
 
     def deactivate(self, ext_pkg, view, **args):
         args.update(ignore=self.python_ignore(ext_pkg, args))
@@ -708,10 +706,7 @@ class Python(AutotoolsPackage):
         # Make deactivate idempotent
         if ext_pkg.name in exts:
             del exts[ext_pkg.name]
-            self.write_easy_install_pth(exts,
-                                        prefix=view.get_projection_for_spec(
-                                            self.spec
-                                        ))
+            self.write_easy_install_pth(exts, prefix=view.root)
 
     def add_files_to_view(self, view, merge_map):
         bin_dir = self.spec.prefix.bin
@@ -722,13 +717,7 @@ class Python(AutotoolsPackage):
                 copy(src, dst)
                 if 'script' in get_filetype(src):
                     filter_file(
-                        self.spec.prefix,
-                        os.path.abspath(
-                            view.get_projection_for_spec(self.spec)
-                        ),
-                        dst,
-                        backup=False
-                    )
+                        self.spec.prefix, os.path.abspath(view.root), dst)
             else:
                 orig_link_target = os.path.realpath(src)
                 new_link_target = os.path.abspath(merge_map[orig_link_target])

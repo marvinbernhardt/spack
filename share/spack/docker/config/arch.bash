@@ -11,6 +11,8 @@ unset BASE_TAG
 unset TAG
 unset EXTRA_TAGS
 
-export BASE_IMAGE="archlinux/base"
+export BASE_IMAGE="base/archlinux"
 export BASE_NAME="archlinux"
+export BASE_TAG="2018.10.01"
 export DISTRO="arch"
+export EXTRA_TAGS="latest"

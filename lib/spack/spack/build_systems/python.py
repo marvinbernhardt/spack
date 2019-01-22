@@ -414,9 +414,7 @@ class PythonPackage(PackageBase):
     def add_files_to_view(self, view, merge_map):
         bin_dir = self.spec.prefix.bin
         python_prefix = self.extendee_spec.prefix
-        global_view = same_path(python_prefix, view.get_projection_for_spec(
-            self.spec
-        ))
+        global_view = same_path(python_prefix, view.root)
         for src, dst in merge_map.items():
             if os.path.exists(dst):
                 continue
@@ -426,9 +424,7 @@ class PythonPackage(PackageBase):
                 shutil.copy2(src, dst)
                 if 'script' in get_filetype(src):
                     filter_file(
-                        python_prefix, os.path.abspath(
-                            view.get_projection_for_spec(self.spec)), dst
-                    )
+                        python_prefix, os.path.abspath(view.root), dst)
             else:
                 orig_link_target = os.path.realpath(src)
                 new_link_target = os.path.abspath(merge_map[orig_link_target])
@@ -447,11 +443,7 @@ class PythonPackage(PackageBase):
                 ignore_namespace = True
 
         bin_dir = self.spec.prefix.bin
-        global_view = (
-            self.extendee_spec.prefix == view.get_projection_for_spec(
-                self.spec
-            )
-        )
+        global_view = self.extendee_spec.prefix == view.root
         for src, dst in merge_map.items():
             if ignore_namespace and namespace_init(dst):
                 continue
