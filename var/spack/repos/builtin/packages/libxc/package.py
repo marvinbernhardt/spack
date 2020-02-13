@@ -11,13 +11,15 @@ class Libxc(AutotoolsPackage):
     density-functional theory."""
 
     homepage = "http://www.tddft.org/programs/octopus/wiki/index.php/Libxc"
-    url      = "http://www.tddft.org/programs/octopus/down.php?file=libxc/libxc-2.2.2.tar.gz"
+    url      = "https://gitlab.com/libxc/libxc/-/archive/4.3.4/libxc-4.3.4.zip"
 
-    version('4.2.3', '6176ac7edf234425d973903f82199350')
-    version('3.0.0', '8227fa3053f8fc215bd9d7b0d36de03c')
-    version('2.2.2', 'd9f90a0d6e36df6c1312b6422280f2ec')
-    version('2.2.1', '38dc3a067524baf4f8521d5bb1cd0b8f')
+    #version('4.3.4', sha512='b45ef8a89d5db86bae5ee98de4a733de63202ea94ed871b16c6e3722dadc9110f8f8deffc50f7ea9783ed8238a79d149b8b025c2e1ca710e1df82ac2e38c742b')
+    version('4.2.3', sha512='3f5c65f17dc80c81f8c3e86b76e7f29d165d2e554fdf333e75feacad780dbf123d8d55b9b95b49aa7ac67953c900c267b999f5ef5193d826c6f8a5c10984e542')
+    #version('3.0.0', '8227fa3053f8fc215bd9d7b0d36de03c')
+    #version('2.2.2', 'd9f90a0d6e36df6c1312b6422280f2ec')
+    #version('2.2.1', '38dc3a067524baf4f8521d5bb1cd0b8f')
 
+    """
     def url_for_version(self, version):
         if version < Version('3.0.0'):
             return ("http://www.tddft.org/programs/octopus/"
@@ -27,6 +29,12 @@ class Libxc(AutotoolsPackage):
         return ("http://www.tddft.org/programs/octopus/"
                 "down.php?file=libxc/{0}/libxc-{0}.tar.gz"
                 .format(version))
+                """
+
+    depends_on('m4')
+    depends_on('autoconf')
+    depends_on('automake')
+    depends_on('libtool')
 
     @property
     def libs(self):

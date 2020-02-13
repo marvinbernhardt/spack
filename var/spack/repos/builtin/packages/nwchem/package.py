@@ -23,10 +23,12 @@ class Nwchem(Package):
     version('6.6', 'c581001c004ea5e5dfacb783385825e3',
             url='http://www.nwchem-sw.org/images/Nwchem-6.6.revision27746-src.2015-10-20.tar.gz')
 
+    variant('scalapack', default=True, description='Activate scalapack support')
+
     depends_on('blas')
     depends_on('lapack')
     depends_on('mpi')
-    depends_on('scalapack')
+    depends_on('scalapack', when='+scalapack')
 
     depends_on('python@2.7:2.8', type=('build', 'link', 'run'))
 
@@ -62,7 +64,6 @@ class Nwchem(Package):
             patch(__url, when=__condition, level=0, sha256=__sha256, archive_sha256=__archive_sha256)
 
     def install(self, spec, prefix):
-        scalapack = spec['scalapack'].libs
         lapack = spec['lapack'].libs
         blas = spec['blas'].libs
         # see http://www.nwchem-sw.org/index.php/Compiling_NWChem
@@ -81,16 +82,23 @@ class Nwchem(Package):
             'BLASOPT=%s' % ((lapack + blas).ld_flags),
             'BLAS_LIB=%s' % blas.ld_flags,
             'LAPACK_LIB=%s' % lapack.ld_flags,
-            'USE_SCALAPACK=y',
-            'SCALAPACK=%s' % scalapack.ld_flags,
             'NWCHEM_MODULES=all python',
             'NWCHEM_LONG_PATHS=Y'  # by default NWCHEM_TOP is 64 char max
+        ])
+
+        if '+scalapack' in spec:
+            scalapack = spec['scalapack'].libs
+            args.extend([
+                'USE_SCALAPACK=y',
+                'SCALAPACK=%s' % scalapack.ld_flags,
         ])
 
         # TODO: query if blas/lapack/scalapack uses 64bit Ints
         # A flag to distinguish between 32bit and 64bit integers in linear
         # algebra (Blas, Lapack, Scalapack)
         use_32_bit_lin_alg = True
+        if spec.satisfies('^openblas+ilp64'):
+            use_32_bit_lin_alg = False
 
         if use_32_bit_lin_alg:
             args.extend([
