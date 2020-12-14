@@ -219,6 +219,7 @@ class QuantumEspresso(Package):
         if '^fftw@3:' in spec:
             fftw_prefix = spec['fftw'].prefix
             options.append('FFTW_INCLUDE={0}'.format(fftw_prefix.include))
+            options.append('FFLAGS=-O3 -g -I{0}'.format(fftw_prefix.include))
             fftw_ld_flags = spec['fftw'].libs.ld_flags
             options.append('FFT_LIBS={0}'.format(fftw_ld_flags))
 
